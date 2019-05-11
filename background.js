@@ -71,7 +71,6 @@ var toDownloadMime = [
 
 function sendUsingCookies(downloadItem, _cookies)
 {
-    console.log(downloadItem);
     var index;
     var cookies = "";
     if (_cookies != null)
@@ -94,13 +93,13 @@ function sendUsingCookies(downloadItem, _cookies)
 
 function updater_function(downloadItem)
 {
-    if (downloadItem.url != "")
+    if (downloadItem.url != "" && downloadItem.url.indexOf("ftp://") == -1 && downloadItem.url.indexOf("blob:") == -1)
     {
         var audioRegex = /audio\/.*/gm
         var videoRegex = /video\/.*/gm
         var audioFound;
         var videoFound;
-        if (socket.readyState == 1 && (toDownloadMime.indexOf(downloadItem.mime) > -1 || ((audioFound = audioRegex.exec(downloadItem.mime)) != null) || ((videoFound = videoRegex.exec(downloadItem.mime)) != null)) && downloadItem.url.indexOf("ftp://") == -1 && downloadItem.url.indexOf("blob://"))
+        if (socket.readyState == 1 && (toDownloadMime.indexOf(downloadItem.mime) > -1 || ((audioFound = audioRegex.exec(downloadItem.mime)) != null) || ((videoFound = videoRegex.exec(downloadItem.mime)) != null)))
         {
             browserVar.cookies.getAll({"url": downloadItem.url}, function(_cookies)
                 {
@@ -112,4 +111,3 @@ function updater_function(downloadItem)
 };
 
 browserVar.downloads.onCreated.addListener(updater_function);
-browserVar.downloads.onChanged.addListener(updater_function);
