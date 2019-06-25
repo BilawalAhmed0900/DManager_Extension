@@ -54,16 +54,6 @@ var toDownloadMime = [
     "application/x-tar",
     "application/x-zip",
     "application/x-zip-compressed",
-    "ilm/tm",
-    "image/gif",
-    "image/icon",
-    "image/jpg",
-    "image/jpeg",
-    "image/png",
-    "image/tiff",
-    "image/vnd.microsoft.icon",
-    "image/webp",
-    "image/x-icon",
     "flv-application/octet-stream",
     "application/x-iso9660-image",
     "application/octet-stream"
@@ -82,7 +72,7 @@ function sendUsingCookies(downloadItem, _cookies)
     }
     
     
-    var toBeSent = JSON.stringify({"filename": downloadItem.filename, "url": downloadItem.url, "finalUrl": downloadItem.finalUrl || "",
+    var toBeSent = JSON.stringify({"filename": downloadItem.filename, "url": downloadItem.url, "finalUrl": downloadItem.finalUrl || downloadItem.url,
                         "referrer": downloadItem.referrer || "", "fileSize": downloadItem.fileSize, "mime": downloadItem.mime, 
                         "cookies": cookies, "youtube_link": false});
     socket.send(toBeSent + "\0");
