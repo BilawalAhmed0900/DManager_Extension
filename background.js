@@ -56,7 +56,8 @@ var toDownloadMime = [
     "application/x-zip-compressed",
     "flv-application/octet-stream",
     "application/x-iso9660-image",
-    "application/octet-stream"
+    "application/octet-stream",
+	"binary/octet-stream"
 ];
 
 function sendUsingCookies(downloadItem, _cookies)
@@ -83,7 +84,7 @@ function sendUsingCookies(downloadItem, _cookies)
 
 function updater_function(downloadItem)
 {
-    if (downloadItem.url != "" && downloadItem.url.indexOf("ftp://") == -1 && downloadItem.url.indexOf("blob:") == -1)
+	if (downloadItem.url != "" && downloadItem.url.indexOf("ftp://") == -1 && downloadItem.url.indexOf("blob:") == -1)
     {
         var audioRegex = /audio\/.*/gm
         var videoRegex = /video\/.*/gm
