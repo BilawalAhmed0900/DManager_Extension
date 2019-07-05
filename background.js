@@ -52,15 +52,17 @@ var toDownloadMime = [
     "application/x-silverlight-app",
     "application/x-subrip",
     "application/x-tar",
+	"application/x-msdownload",
     "application/x-zip",
     "application/x-zip-compressed",
-    "flv-application/octet-stream",
     "application/x-iso9660-image",
     "application/octet-stream",
-	"binary/octet-stream"
+	"application/binary",
+	"binary/octet-stream",
+    "flv-application/octet-stream"
 ];
 
-function sendUsingCookies(downloadItem, _cookies)
+function sendUsingCookies(downloadItem, _cookies, isAudio, isVideo, isExecutable)
 {
     var index;
     var cookies = "";
@@ -75,7 +77,7 @@ function sendUsingCookies(downloadItem, _cookies)
     
     var toBeSent = JSON.stringify({"filename": downloadItem.filename, "url": downloadItem.url, "finalUrl": downloadItem.finalUrl || downloadItem.url,
                         "referrer": downloadItem.referrer || "", "fileSize": downloadItem.fileSize, "mime": downloadItem.mime, 
-                        "cookies": cookies, "youtube_link": false});
+                        "cookies": cookies, "youtubeLink": false, "isAudio": isAudio, "isVideo": isVideo, "isExecutable": isExecutable});
     socket.send(toBeSent + "\0");
     
     browserVar.downloads.cancel(downloadItem.id);
@@ -84,17 +86,21 @@ function sendUsingCookies(downloadItem, _cookies)
 
 function updater_function(downloadItem)
 {
-	if (downloadItem.url != "" && downloadItem.url.indexOf("ftp://") == -1 && downloadItem.url.indexOf("blob:") == -1)
+	console.log(downloadItem);
+	if (downloadItem.url != "" && downloadItem.url.indexOf("ftp://") == -1 && downloadItem.url.indexOf("blob:") == -1 && downloadItem.filename == "")
     {
         var audioRegex = /audio\/.*/gm
         var videoRegex = /video\/.*/gm
-        var audioFound;
-        var videoFound;
-        if (socket.readyState == 1 && (toDownloadMime.indexOf(downloadItem.mime) > -1 || ((audioFound = audioRegex.exec(downloadItem.mime)) != null) || ((videoFound = videoRegex.exec(downloadItem.mime)) != null)))
+		
+        var audioFound = (audioRegex.exec(downloadItem.mime) != null);
+        var videoFound = (videoRegex.exec(downloadItem.mime) != null);
+		
+        if (socket.readyState == 1 
+			&& (toDownloadMime.indexOf(downloadItem.mime) > -1 || audioFound || videoFound))
         {
             browserVar.cookies.getAll({"url": downloadItem.url}, function(_cookies)
                 {
-                    sendUsingCookies(downloadItem, _cookies);  
+					sendUsingCookies(downloadItem, _cookies, audioFound, videoFound, false);
                 });
         }
     }
