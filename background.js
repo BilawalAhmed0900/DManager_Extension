@@ -11,20 +11,8 @@ else
 
 var socket = new WebSocket("ws://127.0.0.1:49152");
 var toDownloadMime = [
-    "text/html",
-    "text/css",
-    "text/javascript",
-    "text/mspg-legacyinfo",
-    "text/plain",
-    "text/srt",
-    "text/vtt",
-    "text/xml",
-    "text/x-javascript",
-    "text/x-json",
     "application/f4m+xml",
     "application/gzip",
-    "application/javascript",
-    "application/json",
     "application/msword",
     "application/pdf",
     "application/ttaf+xml",
@@ -39,7 +27,6 @@ var toDownloadMime = [
     "application/x-gtar",
     "application/x-gzip",
     "application/x-gzip-compressed",
-    "application/x-javascript",
     "application/x-mpegurl",
     "application/x-msdos-program",
     "application/x-msi",

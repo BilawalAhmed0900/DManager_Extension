@@ -1,6 +1,6 @@
 {
   "name": "DManager",
-  "version": "1.5",
+  "version": "1.5.1",
   "description": "Extension for DManager!",
   "permissions": [
       "cookies",
