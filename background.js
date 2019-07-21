@@ -17,12 +17,15 @@ var toDownloadMime = [
     "application/pdf",
     "application/ttaf+xml",
     "application/vnd.apple.mpegurl",
+	"application/rar",
     "application/zip",
     "application/x-7z-compressed",
     "application/x-aim",
     "application/x-compress",
     "application/x-compress-7z",
     "application/x-compressed",
+	"application/x-lzma",
+	"application/x-lzma-compressed",
     "application/x-dosexec",
     "application/x-gtar",
     "application/x-gzip",
@@ -63,8 +66,9 @@ function sendUsingCookies(downloadItem, _cookies, isAudio, isVideo, isExecutable
     
     
     var toBeSent = JSON.stringify({"filename": downloadItem.filename, "url": downloadItem.url, "finalUrl": downloadItem.finalUrl || downloadItem.url,
-                        "referrer": downloadItem.referrer || "", "fileSize": downloadItem.fileSize, "mime": downloadItem.mime, 
-                        "cookies": cookies, "youtubeLink": false, "isAudio": isAudio, "isVideo": isVideo, "isExecutable": isExecutable});
+                        "referrer": downloadItem.referrer || "", "fileSize": downloadItem.fileSize, "mime": downloadItem.mime.replace(",", "__COMMA__"), 
+                        "cookies": cookies.replace(",", "__COMMA__"), "youtubeLink": false, "isAudio": isAudio, "isVideo": isVideo, "isExecutable": isExecutable, 
+						"userAgent": sUsrAg.replace(",", "__COMMA__")});
     socket.send(toBeSent + "\0");
     
     browserVar.downloads.cancel(downloadItem.id);
@@ -79,7 +83,7 @@ function updater_function(downloadItem)
         var audioRegex = /audio\/.*/gm
         var videoRegex = /video\/.*/gm
 		
-        var audioFound = (audioRegex.exec(downloadItem.mime) != null);
+		var audioFound = (audioRegex.exec(downloadItem.mime) != null);
         var videoFound = (videoRegex.exec(downloadItem.mime) != null);
 		
         if (socket.readyState == 1 
