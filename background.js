@@ -54,22 +54,25 @@ var toDownloadMime = [
 
 function sendUsingCookies(downloadItem, _cookies, isAudio, isVideo, isExecutable)
 {
-    var index;
-    var cookies = "";
+    let cookies = "{";
     if (_cookies != null)
     {
-        for (index = 0; index < _cookies.length; index++)
+        for (let index = 0; index < _cookies.length; index++)
         {
-            cookies = cookies + _cookies[index].name + "=" + _cookies[index].value + "; ";
+            cookies = cookies + "\"" + _cookies[index].name + "\": \"" + _cookies[index].value + "\"";
+			if (index < _cookies.length - 1)
+			{
+				cookies += ", ";
+			}
         }
     }
+	cookies += "}";
     
-    
-    var toBeSent = JSON.stringify({"filename": downloadItem.filename, "url": downloadItem.url, "finalUrl": downloadItem.finalUrl || downloadItem.url,
-                        "referrer": downloadItem.referrer || "", "fileSize": downloadItem.fileSize, "mime": downloadItem.mime.replace(",", "__COMMA__"), 
-                        "cookies": cookies.replace(",", "__COMMA__"), "youtubeLink": false, "isAudio": isAudio, "isVideo": isVideo, "isExecutable": isExecutable, 
-						"userAgent": sUsrAg.replace(",", "__COMMA__")});
-    socket.send(toBeSent + "\0");
+    const toBeSent = JSON.stringify({"filename": downloadItem.filename, "url": downloadItem.url, "finalUrl": downloadItem.finalUrl || downloadItem.url,
+                        "referrer": downloadItem.referrer || "", "fileSize": downloadItem.fileSize, "mime": downloadItem.mime, 
+                        "cookies": cookies, "youtubeLink": false, "isAudio": isAudio, "isVideo": isVideo, "isExecutable": isExecutable, 
+						"userAgent": sUsrAg});
+    socket.send(toBeSent);
     
     browserVar.downloads.cancel(downloadItem.id);
     browserVar.downloads.erase({"id": downloadItem.id});
@@ -77,14 +80,13 @@ function sendUsingCookies(downloadItem, _cookies, isAudio, isVideo, isExecutable
 
 function updater_function(downloadItem)
 {
-	console.log(downloadItem);
-	if (downloadItem.url != "" && downloadItem.url.indexOf("ftp://") == -1 && downloadItem.url.indexOf("blob:") == -1 && downloadItem.filename == "")
+	if (downloadItem.url !== "" && downloadItem.url.indexOf("ftp://") === -1 && downloadItem.url.indexOf("blob:") === -1 && downloadItem.filename === "")
     {
-        var audioRegex = /audio\/.*/gm
-        var videoRegex = /video\/.*/gm
+        const audioRegex = /audio\/.*/gm
+        const videoRegex = /video\/.*/gm
 		
-		var audioFound = (audioRegex.exec(downloadItem.mime) != null);
-        var videoFound = (videoRegex.exec(downloadItem.mime) != null);
+		const audioFound = (audioRegex.exec(downloadItem.mime) != null);
+        const videoFound = (videoRegex.exec(downloadItem.mime) != null);
 		
         if (socket.readyState == 1 
 			&& (toDownloadMime.indexOf(downloadItem.mime) > -1 || audioFound || videoFound))
