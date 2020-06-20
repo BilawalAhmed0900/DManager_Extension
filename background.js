@@ -54,19 +54,14 @@ var toDownloadMime = [
 
 function sendUsingCookies(downloadItem, _cookies, isAudio, isVideo, isExecutable)
 {
-    let cookies = "{";
+    let cookies = "";
     if (_cookies != null)
     {
         for (let index = 0; index < _cookies.length; index++)
         {
-            cookies = cookies + "\"" + _cookies[index].name + "\": \"" + _cookies[index].value + "\"";
-			if (index < _cookies.length - 1)
-			{
-				cookies += ", ";
-			}
+            cookies = cookies + _cookies[index].name + "=" + _cookies[index].value + "; ";
         }
     }
-	cookies += "}";
     
     const toBeSent = JSON.stringify({"filename": downloadItem.filename, "url": downloadItem.url, "finalUrl": downloadItem.finalUrl || downloadItem.url,
                         "referrer": downloadItem.referrer || "", "fileSize": downloadItem.fileSize, "mime": downloadItem.mime, 
@@ -80,6 +75,7 @@ function sendUsingCookies(downloadItem, _cookies, isAudio, isVideo, isExecutable
 
 function updater_function(downloadItem)
 {
+	console.log(downloadItem);
 	if (downloadItem.url !== "" && downloadItem.url.indexOf("ftp://") === -1 && downloadItem.url.indexOf("blob:") === -1 && downloadItem.filename === "")
     {
         const audioRegex = /audio\/.*/gm
