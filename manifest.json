@@ -5,10 +5,6 @@
   "permissions": [
       "cookies",
       "downloads",
-      "webNavigation",
-      "webRequest",
-      "webRequestBlocking",
-      "tabs",
       "<all_urls>"
   ],
   "background": {
