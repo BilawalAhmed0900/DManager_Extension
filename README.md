@@ -1,6 +1,6 @@
 # DManager Extension
 
-Extension for DManager
+Extension for LinkDownloader
 
 # Works with
 
