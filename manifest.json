@@ -1,7 +1,7 @@
 {
-  "name": "DManager Extension",
-  "version": "1.5.3",
-  "description": "Extension for DManager!",
+  "name": "LinkDownloader Extension",
+  "version": "1.6.0",
+  "description": "Extension for LinkDownloader!",
   "permissions": [
       "cookies",
       "downloads",
