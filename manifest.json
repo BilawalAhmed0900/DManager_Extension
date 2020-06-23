@@ -1,10 +1,11 @@
 {
   "name": "LinkDownloader Extension",
-  "version": "1.6.0",
+  "version": "1.7.3",
   "description": "Extension for LinkDownloader!",
   "permissions": [
       "cookies",
       "downloads",
+	  "contextMenus",
       "<all_urls>"
   ],
   "background": {

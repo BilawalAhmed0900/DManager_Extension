@@ -1,16 +1,8 @@
-var sUsrAg = window.navigator.userAgent;
-var browserVar;
-if (sUsrAg.indexOf("Chrome") > -1)
-{
-    browserVar = chrome;
-}
-else
-{
-    browserVar = browser;
-}
-
-var socket = new WebSocket("ws://127.0.0.1:49152");
-var toDownloadMime = [
+const sUsrAg = window.navigator.userAgent;
+const isFirefox = (sUsrAg.indexOf("Chrome") === -1);
+const browserVar = (!isFirefox) ? chrome : browser;
+const socket = new WebSocket("ws://127.0.0.1:49152");
+const toDownloadMime = [
     "application/f4m+xml",
     "application/gzip",
     "application/msword",
@@ -68,32 +60,93 @@ function sendUsingCookies(downloadItem, _cookies, isAudio, isVideo, isExecutable
                         "cookies": cookies, "youtubeLink": false, "isAudio": isAudio, "isVideo": isVideo, "isExecutable": isExecutable, 
 						"userAgent": sUsrAg});
     socket.send(toBeSent);
-    
-    browserVar.downloads.cancel(downloadItem.id);
-    browserVar.downloads.erase({"id": downloadItem.id});
 }
 
 function updater_function(downloadItem)
 {
 	console.log(downloadItem);
-	if (downloadItem.url !== "" && downloadItem.url.indexOf("ftp://") === -1 && downloadItem.url.indexOf("blob:") === -1 && downloadItem.filename === "")
+	const audioRegex = /audio\/.*/
+	const videoRegex = /video\/.*/
+	
+	const audioFound = (audioRegex.exec(downloadItem.mime) != null);
+	const videoFound = (videoRegex.exec(downloadItem.mime) != null);
+	if ((socket.readyState === 1 && downloadItem.url !== "" && downloadItem.url.indexOf("ftp://") === -1 && downloadItem.url.indexOf("blob:") === -1) &&
+		(toDownloadMime.indexOf(downloadItem.mime) > -1 || audioFound || videoFound))
     {
-        const audioRegex = /audio\/.*/gm
-        const videoRegex = /video\/.*/gm
-		
-		const audioFound = (audioRegex.exec(downloadItem.mime) != null);
-        const videoFound = (videoRegex.exec(downloadItem.mime) != null);
-		
-        if (socket.readyState == 1 
-			&& (toDownloadMime.indexOf(downloadItem.mime) > -1 || audioFound || videoFound))
-        {
-            browserVar.cookies.getAll({"url": downloadItem.url}, function(_cookies)
-                {
-					sendUsingCookies(downloadItem, _cookies, audioFound, videoFound, false);
-                });
-        }
+		browserVar.downloads.cancel(downloadItem.id);
+		browserVar.downloads.erase({"id": downloadItem.id});
+        browserVar.cookies.getAll({"url": downloadItem.url}, function(_cookies)
+		{
+			sendUsingCookies(downloadItem, _cookies, audioFound, videoFound, false);
+		});
     }
-    
 };
 
+function contextMenuDownloadFunction(info, tab)
+{
+	console.log(info);
+	const downloadItem = {
+		filename: "",
+		url: info.linkUrl,
+		finalUrl: info.linkUrl,
+		referrer: info.pageUrl,
+		fileSize: -1,
+		mime: ""
+	};
+	browserVar.cookies.getAll({"url": downloadItem.url}, function(cookies)
+	{
+		sendUsingCookies(downloadItem, cookies, false, false, false);
+	});
+}
+
+function contextMenuTransferDownloadFunction(info, tab)
+{
+	console.log(info);
+	browserVar.downloads.search(
+	{
+		finalUrl: info.linkUrl
+	},
+	(downloadItems) =>
+	{
+		console.log(downloadItems);
+		for (const downloadItem of downloadItems)
+		{
+			browserVar.downloads.cancel(downloadItem.id);
+			browserVar.downloads.erase({"id": downloadItem.id});
+		}
+	});
+	const downloadItem = {
+		filename: "",
+		url: info.linkUrl,
+		finalUrl: info.linkUrl,
+		referrer: info.pageUrl,
+		fileSize: -1,
+		mime: ""
+	};
+	browserVar.cookies.getAll({"url": downloadItem.url}, function(cookies)
+	{
+		sendUsingCookies(downloadItem, cookies, false, false, false);
+	});
+}
+
 browserVar.downloads.onCreated.addListener(updater_function);
+browserVar.contextMenus.create(
+{
+	title: "Download with LinkDownloader",
+	contexts: ["link"],
+	documentUrlPatterns: ["http://*/*", "https://*/*"],
+	onclick: contextMenuDownloadFunction
+});
+
+// This is only supported in Chrome
+if (!isFirefox)
+{
+	browserVar.contextMenus.create(
+	{
+		title: "Transfer download to LinkDownloader",
+		contexts: ["link"],
+		documentUrlPatterns: ["chrome://downloads/"],
+		onclick: contextMenuTransferDownloadFunction
+	});
+}
+
