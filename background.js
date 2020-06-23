@@ -44,20 +44,20 @@ const toDownloadMime = [
     "flv-application/octet-stream"
 ];
 
-function sendUsingCookies(downloadItem, _cookies, isAudio, isVideo, isExecutable)
+function sendUsingCookies(downloadItem, cookies, isAudio, isVideo, isExecutable)
 {
-    let cookies = "";
-    if (_cookies != null)
+    let cookiesString = "";
+    if (cookies != null)
     {
-        for (let index = 0; index < _cookies.length; index++)
+        for (let index = 0; index < cookies.length; index++)
         {
-            cookies = cookies + _cookies[index].name + "=" + _cookies[index].value + "; ";
+            cookiesString = cookiesString + cookies[index].name + "=" + cookies[index].value + "; ";
         }
     }
     
     const toBeSent = JSON.stringify({"filename": downloadItem.filename, "url": downloadItem.url, "finalUrl": downloadItem.finalUrl || downloadItem.url,
                         "referrer": downloadItem.referrer || "", "fileSize": downloadItem.fileSize, "mime": downloadItem.mime, 
-                        "cookies": cookies, "youtubeLink": false, "isAudio": isAudio, "isVideo": isVideo, "isExecutable": isExecutable, 
+                        "cookies": cookiesString, "youtubeLink": false, "isAudio": isAudio, "isVideo": isVideo, "isExecutable": isExecutable, 
 						"userAgent": sUsrAg});
     socket.send(toBeSent);
 }
@@ -75,9 +75,9 @@ function updater_function(downloadItem)
     {
 		browserVar.downloads.cancel(downloadItem.id);
 		browserVar.downloads.erase({"id": downloadItem.id});
-        browserVar.cookies.getAll({"url": downloadItem.url}, function(_cookies)
+        browserVar.cookies.getAll({"url": downloadItem.url}, function(cookies)
 		{
-			sendUsingCookies(downloadItem, _cookies, audioFound, videoFound, false);
+			sendUsingCookies(downloadItem, cookies, audioFound, videoFound, false);
 		});
     }
 };
@@ -134,7 +134,8 @@ browserVar.contextMenus.create(
 {
 	title: "Download with LinkDownloader",
 	contexts: ["link"],
-	documentUrlPatterns: ["http://*/*", "https://*/*"],
+	targetUrlPatterns: ["http://*/*", "https://*/*"],
+    documentUrlPatterns: ["http://*/*", "https://*/*"],
 	onclick: contextMenuDownloadFunction
 });
 
@@ -145,6 +146,7 @@ if (!isFirefox)
 	{
 		title: "Transfer download to LinkDownloader",
 		contexts: ["link"],
+        targetUrlPatterns: ["http://*/*", "https://*/*"],
 		documentUrlPatterns: ["chrome://downloads/"],
 		onclick: contextMenuTransferDownloadFunction
 	});
