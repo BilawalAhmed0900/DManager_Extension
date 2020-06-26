@@ -64,7 +64,11 @@ function sendUsingCookies(downloadItem, cookies, isAudio, isVideo, isExecutable)
 
 function updater_function(downloadItem)
 {
-	console.log(downloadItem);
+    if ("error" in downloadItem || downloadItem["bytesReceived"] !== 0)
+    {
+        return;
+    }
+    
 	const audioRegex = /audio\/.*/
 	const videoRegex = /video\/.*/
 	
@@ -84,7 +88,7 @@ function updater_function(downloadItem)
 
 function contextMenuDownloadFunction(info, tab)
 {
-	console.log(info);
+	//console.log(info);
 	const downloadItem = {
 		filename: "",
 		url: info.linkUrl,
@@ -101,14 +105,14 @@ function contextMenuDownloadFunction(info, tab)
 
 function contextMenuTransferDownloadFunction(info, tab)
 {
-	console.log(info);
+	//console.log(info);
 	browserVar.downloads.search(
 	{
 		finalUrl: info.linkUrl
 	},
 	(downloadItems) =>
 	{
-		console.log(downloadItems);
+		//console.log(downloadItems);
 		for (const downloadItem of downloadItems)
 		{
 			browserVar.downloads.cancel(downloadItem.id);
