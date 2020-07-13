@@ -1,7 +1,7 @@
 const sUsrAg = window.navigator.userAgent;
 const isFirefox = (sUsrAg.indexOf("Chrome") === -1);
 const browserVar = (!isFirefox) ? chrome : browser;
-const socket = new WebSocket("ws://127.0.0.1:49152");
+var socket = null;
 const toDownloadMime = [
     "application/f4m+xml",
     "application/gzip",
@@ -59,7 +59,13 @@ function sendUsingCookies(downloadItem, cookies, isAudio, isVideo, isExecutable)
                         "referrer": downloadItem.referrer || "", "fileSize": downloadItem.fileSize, "mime": downloadItem.mime, 
                         "cookies": cookiesString, "youtubeLink": false, "isAudio": isAudio, "isVideo": isVideo, "isExecutable": isExecutable, 
 						"userAgent": sUsrAg});
-    socket.send(toBeSent);
+    let socket = new WebSocket("ws://127.0.0.1:49152");
+    socket.addEventListener("open", (e) =>
+    {
+        socket.send(toBeSent);
+        socket.close();
+        socket = null;
+    });
 }
 
 function updater_function(downloadItem)
@@ -74,7 +80,7 @@ function updater_function(downloadItem)
 	
 	const audioFound = (audioRegex.exec(downloadItem.mime) != null);
 	const videoFound = (videoRegex.exec(downloadItem.mime) != null);
-	if ((socket.readyState === 1 && downloadItem.url !== "" && downloadItem.url.indexOf("ftp://") === -1 && downloadItem.url.indexOf("blob:") === -1) &&
+	if ((downloadItem.url !== "" && downloadItem.url.indexOf("ftp://") === -1 && downloadItem.url.indexOf("blob:") === -1) &&
 		(toDownloadMime.indexOf(downloadItem.mime) > -1 || audioFound || videoFound))
     {
 		browserVar.downloads.cancel(downloadItem.id);
@@ -156,3 +162,7 @@ if (!isFirefox)
 	});
 }
 
+window.addEventListener('online', (e) =>
+{
+    socket = new WebSocket("ws://127.0.0.1:49152");
+});
